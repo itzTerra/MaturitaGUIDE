@@ -1,6 +1,6 @@
 from flask import Flask, request, url_for, render_template, session, redirect
 from werkzeug.security import generate_password_hash, check_password_hash
-from db import SQLite
+from db import MySQL
 from random import shuffle
 from traceback import format_exc
 from os import environ
@@ -14,7 +14,7 @@ app.secret_key = environ.get("SECRET_KEY")
 # anj_detail helper func
 def NewShuffleList(id_exception: int):
     try:
-        with SQLite() as cur:
+        with MySQL() as cur:
             cur.execute("SELECT id FROM anj ORDER BY RAND()")
             ids = cur.fetchall()
     except:
@@ -60,14 +60,14 @@ def register():
             elif pass1 != pass2:
                 error = "Passwords do not match."
             else:
-                with SQLite() as cur:
-                    cur.execute("SELECT * FROM user WHERE username=?", (username,))
+                with MySQL() as cur:
+                    cur.execute("SELECT * FROM user WHERE username=%s", (username,))
 
-                    if cur.fetchone() is not None:
+                    if cur.rowcount != 0:
                         error = "Username already exists."
                     else:
                         cur.execute(
-                            "INSERT INTO user (username, password) VALUES (?, ?)",
+                            "INSERT INTO user (username, password) VALUES (%s, %s)",
                             (username, generate_password_hash(pass1)),
                         )
                         cur.execute("COMMIT")
@@ -93,11 +93,11 @@ def login():
             username = request.form['username']
             password = request.form['pass']
             
-            with SQLite() as cur:
-                cur.execute('SELECT * FROM user WHERE username=?', (username,))
+            with MySQL() as cur:
+                cur.execute('SELECT * FROM user WHERE username=%s', (username,))
                 user = cur.fetchone()
 
-                if user is None:
+                if cur.rowcount == 0:
                     error = 'Incorrect username.'
                 elif not check_password_hash(user[2], password):
                     error = 'Incorrect password.'
@@ -130,15 +130,15 @@ def change_password():
             elif new1 != new2:
                 error = "New passwords do not match."
             else:
-                with SQLite() as cur:
-                    cur.execute('SELECT * FROM user WHERE username=?', (session["user"][0],))
+                with MySQL() as cur:
+                    cur.execute('SELECT * FROM user WHERE username=%s', (session["user"][0],))
                     user = cur.fetchone()
 
                     if not check_password_hash(user[2], old):
                         error = 'Incorrect old password.'
                     else:
                         cur.execute(
-                            "UPDATE user SET password=? WHERE username=?",
+                            "UPDATE user SET password=%s WHERE username=%s",
                             (generate_password_hash(new1), session["user"][0]),
                         )
                         cur.execute("COMMIT")
@@ -161,8 +161,8 @@ def manage_users():
         try:
             userids = request.form.getlist("checkedUsers", type=int)
             
-            with SQLite() as cur:
-                cur.execute("DELETE FROM user WHERE id IN ?", (userids,))
+            with MySQL() as cur:
+                cur.execute("DELETE FROM user WHERE id IN %s", (userids,))
                 cur.execute("COMMIT")
 
             success = "User(s) successfully removed."
@@ -172,7 +172,7 @@ def manage_users():
 
     users = []
     try:
-        with SQLite() as cur:
+        with MySQL() as cur:
             cur.execute("SELECT id, username, level FROM user ORDER BY level DESC, username")
             users = cur.fetchall()
     except:
@@ -187,7 +187,7 @@ def manage_users():
 def anj():
     items = ""
     try:
-        with SQLite() as cur:
+        with MySQL() as cur:
             cur.execute("SELECT * FROM anj")
             items = cur.fetchall()
     except:
@@ -205,8 +205,8 @@ def anj_detail(id):
         NewShuffleList(id)
 
     try:
-        with SQLite() as cur:
-            cur.execute("SELECT * FROM anj WHERE id=?", (id,))
+        with MySQL() as cur:
+            cur.execute("SELECT * FROM anj WHERE id=%s", (id,))
             item = cur.fetchone()
             if item is None:
                 raise ValueError()
@@ -233,8 +233,8 @@ def anj_next(id):
             shuffle_list = session["shuffle_list"]
             sID = shuffle_list.pop()
             session["shuffle_list"] = shuffle_list
-            with SQLite() as cur:
-                cur.execute("SELECT id FROM anj WHERE id=?", (sID,))
+            with MySQL() as cur:
+                cur.execute("SELECT id FROM anj WHERE id=%s", (sID,))
                 next_id = cur.fetchone()[0]
         else:
             asc = request.args.get("asc", "1")
@@ -242,13 +242,11 @@ def anj_next(id):
             if asc != "1":
                 kw = ("<", "id DESC")
 
-            with SQLite() as cur:
-                cur.execute(f"SELECT id FROM anj WHERE id {kw[0]} ? ORDER BY {kw[1]} LIMIT 1", (id,))
-                next_id = cur.fetchone()
-                if next_id is None:
+            with MySQL() as cur:
+                cur.execute(f"SELECT id FROM anj WHERE id {kw[0]} %s ORDER BY {kw[1]} LIMIT 1", (id,))
+                if cur.rowcount == 0:
                     cur.execute(f"SELECT id FROM anj ORDER BY {kw[1]} LIMIT 1")
-                    next_id = cur.fetchone()
-                next_id = next_id[0]
+                next_id = cur.fetchone()[0]
     except:
         print(format_exc())
         session["error"] = "Unknown error occured."
@@ -276,9 +274,9 @@ def anj_create():
             if not title or not st_title:
                 error = "Titles must not be empty."
             else:
-                with SQLite() as cur:
+                with MySQL() as cur:
                     cur.execute(
-                        "INSERT INTO anj (title, summary, body, st_title, st_body, difficulty) VALUES (?, ?, ?, ?, ?, ?)",
+                        "INSERT INTO anj (title, summary, body, st_title, st_body, difficulty) VALUES (%s, %s, %s, %s, %s, %s)",
                         (title, summary, body, st_title, st_body, difficulty)
                     )
                     id = cur.lastrowid
@@ -298,8 +296,8 @@ def anj_edit(id):
         return redirect(session.get("last_url", url_for("index")))
     
     try:
-        with SQLite() as cur:
-            cur.execute("SELECT * FROM anj WHERE id=?", (id,))
+        with MySQL() as cur:
+            cur.execute("SELECT * FROM anj WHERE id=%s", (id,))
             item = cur.fetchone()
             if item is None:
                 raise ValueError("Item not found.")
@@ -323,9 +321,9 @@ def anj_edit(id):
             if not title:
                 error = "Title must not be empty."
             else:
-                with SQLite() as cur:
+                with MySQL() as cur:
                     cur.execute(
-                        "UPDATE anj SET title=?, summary=?, body=?, st_title=?, st_body=?, difficulty=? WHERE id=?",
+                        "UPDATE anj SET title=%s, summary=%s, body=%s, st_title=%s, st_body=%s, difficulty=%s WHERE id=%s",
                         (title, summary, body, st_title, st_body, difficulty, id)
                     )
                     cur.execute("COMMIT")
@@ -343,8 +341,8 @@ def anj_delete(id):
         return redirect(session.get("last_url", url_for("index")))
 
     try:
-        with SQLite() as cur:
-            cur.execute("DELETE FROM anj WHERE id=?", (id,))
+        with MySQL() as cur:
+            cur.execute("DELETE FROM anj WHERE id=%s", (id,))
             cur.execute("COMMIT")
     except:
         print(format_exc())
@@ -379,7 +377,7 @@ def set_var():
 def cjl():
     items = ""
     try:
-        with SQLite() as cur:
+        with MySQL() as cur:
             cur.execute("SELECT * FROM cjl")
             items = cur.fetchall()
     except:
@@ -393,8 +391,8 @@ def cjl():
 @app.route('/cjl/<int:id>/')
 def cjl_detail(id):
     try:
-        with SQLite() as cur:
-            cur.execute("SELECT * FROM cjl WHERE id=?", (id,))
+        with MySQL() as cur:
+            cur.execute("SELECT * FROM cjl WHERE id=%s", (id,))
             item = cur.fetchone()
             if item is None:
                 raise ValueError()
@@ -416,9 +414,9 @@ def cjl_next(id):
         if asc != "1":
             kw = ("<", "id DESC")
             
-        with SQLite() as cur:
-            cur.execute(f"SELECT id FROM cjl WHERE id {kw[0]} ? ORDER BY {kw[1]} LIMIT 1", (id,))
-            if cur.fetchone() is None:
+        with MySQL() as cur:
+            cur.execute(f"SELECT id FROM cjl WHERE id {kw[0]} %s ORDER BY {kw[1]} LIMIT 1", (id,))
+            if cur.rowcount == 0:
                 cur.execute(f"SELECT id FROM cjl ORDER BY {kw[1]} LIMIT 1")
             next_id = cur.fetchone()[0]
 
@@ -444,9 +442,9 @@ def cjl_create():
             if not title:
                 error = "Title must not be empty."
             else:
-                with SQLite() as cur:
+                with MySQL() as cur:
                     cur.execute(
-                        "INSERT INTO cjl (title, body, author, pubdate) VALUES (?, ?, ?, datetime())",
+                        "INSERT INTO cjl (title, body, author, pubdate) VALUES (%s, %s, %s, curtime())",
                         (title, body, user[0])
                     )
                     id = cur.lastrowid
@@ -467,8 +465,8 @@ def cjl_edit(id):
         return redirect(session.get("last_url", url_for("index")))
     
     try:
-        with SQLite() as cur:
-            cur.execute("SELECT * FROM cjl WHERE id=?", (id,))
+        with MySQL() as cur:
+            cur.execute("SELECT * FROM cjl WHERE id=%s", (id,))
             item = cur.fetchone()
 
             if item[3] != user[0] and user[1] < 1:
@@ -487,9 +485,9 @@ def cjl_edit(id):
             if not title:
                 error = "Title must not be empty."
             else:
-                with SQLite() as cur:
+                with MySQL() as cur:
                     cur.execute(
-                        "UPDATE cjl SET title=?, body=?, pubdate=datetime() WHERE id=?",
+                        "UPDATE cjl SET title=%s, body=%s, pubdate=curtime() WHERE id=%s",
                         (title, body, id)
                     )
                     cur.execute("COMMIT")
@@ -508,14 +506,14 @@ def cjl_delete(id):
         return redirect(session.get("last_url", url_for("index")))
 
     try:
-        with SQLite() as cur:
-            cur.execute("SELECT author FROM cjl WHERE id=?", (id,))
+        with MySQL() as cur:
+            cur.execute("SELECT author FROM cjl WHERE id=%s", (id,))
             item = cur.fetchone()
             
             if item[0] != user[0] and user[1] < 1:
                 return redirect(session.get("last_url", url_for("index")))
             
-            cur.execute("DELETE FROM cjl WHERE id=?", (id,))
+            cur.execute("DELETE FROM cjl WHERE id=%s", (id,))
             cur.execute("COMMIT")
     except:
         print(format_exc())

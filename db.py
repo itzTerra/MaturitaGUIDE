@@ -1,17 +1,36 @@
-import sqlite3
+import MySQLdb
+from os import environ
+from dotenv import load_dotenv
+
+load_dotenv(".env")
+
+MYSQL_DEFAULT_SETTINGS = {
+    "host": environ.get("DB_HOST"),
+    # "host": "localhost",
+    "user": environ.get("DB_USER"),
+    "passwd": environ.get("DB_PASSWD"),
+    "db": environ.get("DB_NAME"),
+    "charset": "utf8"
+}
 
 
-class SQLite:
-    def __init__(self, file="sqlitedb.db"):
-        self.file = file
+class MySQL:
+    def __init__(self, **settings):
+        self.settings = MYSQL_DEFAULT_SETTINGS.copy()
+
+        for kw in settings:
+            self.settings[kw] = settings[kw]
 
     def __enter__(self):
-        self.conn = sqlite3.connect(self.file)
-        # self.conn.row_factory = sqlite3.Row
+        self.conn = MySQLdb.connect(**self.settings)
         self.cursor = self.conn.cursor()
         return self.cursor
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exc_type, exc_val, exc_tb):
         self.cursor.close()
+
+        # Autocommit
         # self.conn.commit()
+
         self.conn.close()
+

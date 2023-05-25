@@ -18,7 +18,7 @@
   <div class="card-header d-flex align-items-start">
     <div class="d-flex align-items-baseline">
       <h4 class="me-4">{{item[1]}}</h4>
-      <span class="text-secondary">by <strong>{{item[3]}}</strong>, {{item[4]}}</span>
+      <span class="text-secondary">by <strong>{{item[3]}}</strong>, {{item[4].strftime('%d. %m. %Y')}}</span>
     </div>
     <div class="ms-auto d-flex gap-2 gap-lg-4 align-items-center justify-content-end flex-wrap flex-lg-nowrap">
       {% if session['user'] and (session['user'][0] == item[3] or session["user"][1] > 0) %}
