@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row center-content g-5 w-100">
+  <div class="col-12 col-md-6 text-center">
+    <a href="{{ url_for('anj') }}" class="btn btn-lg btn-xl btn-primary w-100" role="button">ANJ</a>
+    {% if session["user"] and session["user"][0] == "admin" %}
+    <i class="text-secondary">Prvních 20 témat opravdu používám, takže za admina nejdou upravovat. -Michal</i>
+    {% endif %}
+  </div>
+  <div class="col-12 col-md-6">
+    <a href="{{ url_for('cjl') }}" class="btn btn-lg btn-xl btn-success w-100" role="button">CJL</a>
+  </div>
+</div>
+{% endblock %}
+

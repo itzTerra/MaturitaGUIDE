@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}CJL: {{item[1]}} - GUIDE{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{url_for('static', filename='css/detailview.css')}}">
+<script type="module" src="https://md-block.verou.me/md-block.js"></script>
+{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+<li class="breadcrumb-item"><a href="{{ url_for('cjl') }}">CJL</a></li>
+<li class="breadcrumb-item active" aria-current="page">{{item[1]|truncate(30, true)}}</li>
+{% endblock %}
+
+{% block content %}
+<div class="card border-dark-subtle mt-4">
+  <div class="card-header d-flex align-items-start">
+    <div class="d-flex align-items-baseline">
+      <h4 class="me-4">{{item[1]}}</h4>
+      <span class="text-secondary">by <strong>{{item[3]}}</strong>, {{item[4]}}</span>
+    </div>
+    <div class="ms-auto d-flex gap-2 gap-lg-4 align-items-center justify-content-end flex-wrap flex-lg-nowrap">
+      {% if session['user'] and (session['user'][0] == item[3] or session["user"][1] > 0) %}
+      <a href="{{ url_for('cjl_edit', id=item[0]) }}" class="btn btn-sm btn-info" role="button">
+        <i class="bi bi-pencil-square"></i>
+      </a>
+      {% endif %}
+      <div class="btn-group" role="group">
+        <a href="{{ url_for('cjl_next', id=item[0], asc='-1') }}" class="btn btn-outline-info" role="button">&#171;&nbsp;Previous</a>
+        <a href="{{ url_for('cjl_next', id=item[0], asc='1') }}" class="btn btn-outline-info" role="button">Next&nbsp;&#187;</a>
+      </div>
+    </div>
+  </div>
+  <div class="card-body bg-dark px-lg-5">
+    <md-block class="">{{item[2]}}</md-block>
+  </div>
+</div>
+{% endblock %}

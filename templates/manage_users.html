@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Users - GUIDE{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/manage_users.css') }}"/>
+{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+<li class="breadcrumb-item active" aria-current="page">Manage Users</li>
+{% endblock %}
+
+{% block content %}
+<div class="bg-dark-subtle rounded px-3 px-lg-5 py-4 mt-4 d-flex flex-column align-items-center">
+    <table class="table table-dark border">
+      <form action="{{ url_for('manage_users') }}" method="post">
+      <caption>Found {{users|length}} users</caption>
+      <thead>
+        <tr>
+          <th style="width: 20%" class="text-end">#</th>
+          <th style="width: 60%">Username</th>
+          <th style="width: 10%">Level</th>
+          <th style="width: 10%" class="text-end"></th>
+        </tr>
+      </thead>
+      <tbody class="table-group-divider align-middle">
+        {% for user in users %}
+        <tr data-level="{{ user[2] }}">
+          <th scope="row" class="text-end">{{loop.index}}</th>
+          <td>
+            {{ user[1] }} {% if user[1] == session["user"][0] %} <i><strong>&lsaquo;You&rsaquo;</strong></i>{% endif %}
+          </td>
+          <td>{{ user[2] }}</td>
+          <td class="text-end">
+            {% if user[2] < session["user"][1] %}
+            <input type="checkbox" name="checkedUsers" value="{{ user[0] }}" class="form-check-input" data-bs-theme="light">
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4" class="text-end">
+            <div class="dropdown">
+              <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Action
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <button type="submit" role="button" class="dropdown-item" disabled>
+                    <i class="bi bi-trash"></i> Remove
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+      </tfoot>
+    </form>
+    </table>
+    {% if success %}
+    <div class="alert alert-success" role="alert">{{success}}</div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let actionBtns = $("button[type='submit']")
+
+$("input[name='checkedUsers']").change(() => {
+  let checkedUsers = []
+
+  $("form").serializeArray().forEach(v => {
+    if (v.name === "checkedUsers"){
+      checkedUsers.push(v.value)
+    }
+  })
+
+  if (checkedUsers.length == 0){
+    actionBtns.prop('disabled', true)
+  }
+  else{
+    actionBtns.prop('disabled', false)
+  }
+})
+
+</script>
+{% endblock %}

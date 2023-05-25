@@ -1,0 +1,18 @@
+[data-bs-theme=dark] .card-body{
+    background-color: var(--bs-dark-bg-subtle);
+}
+
+[data-bs-theme=dark] .card-header{
+    --bs-card-cap-color: var(--bs-dark-text);
+}
+
+p {
+    text-align: justify;
+
+    /* If using normal paragraphs instead of md-block module */
+    /* white-space: pre-line; */
+}
+
+#summaryCollapse p{
+    margin-bottom: 0.3rem;
+}

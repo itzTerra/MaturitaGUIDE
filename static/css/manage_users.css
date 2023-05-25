@@ -1,0 +1,27 @@
+tr[data-level="2"]{
+    --bs-table-bg: var(--bs-danger-bg-subtle);
+    --bs-table-striped-bg: var(--bs-danger-bg-subtle);
+}
+
+tr[data-level="1"]{
+    --bs-table-bg: var(--bs-primary-bg-subtle);
+    --bs-table-striped-bg: var(--bs-primary-bg-subtle);
+}
+
+@media (min-width: 992px) { 
+    table{
+        width: 75% !important;
+    }
+}
+
+@media (min-width: 1200px) { 
+    table{
+        width: 65% !important;
+    }
+}
+
+@media (min-width: 1400px) { 
+    table{
+        width: 50% !important;
+    }
+}

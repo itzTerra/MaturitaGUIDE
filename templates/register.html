@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Register - GUIDE{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}"/>
+{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+<li class="breadcrumb-item active" aria-current="page">Register</li>
+{% endblock %}
+
+{% block content %}
+<div class="center-content">
+  <nav class="nav justify-content-center">
+    <a href="{{ url_for('index') }}" class="nav-link">&#171; Home</a>
+  </nav>
+  <form class="py-4 px-5 bg-dark rounded-2 mb-3" method="post">
+    <h1 class="h3 mb-3 fw-normal text-center">Register</h1>
+    <div class="form-floating">
+      <input type="text" class="form-control" id="username" name="username" placeholder="User" required>
+      <label for="username">Username</label>
+    </div>
+    <div class="form-floating">
+      <input type="password" class="form-control rounded-0" id="pass1" name="pass1" placeholder="Password" required>
+      <label for="pass1">Password</label>
+    </div>
+    <div class="form-floating">
+      <input type="password" class="form-control" id="pass2" name="pass2" placeholder="Password" required>
+      <label for="pass2">Re-enter password</label>
+    </div>
+    
+    <button class="w-100 btn btn-lg btn-primary my-3" type="submit">Register</button>
+  
+    <p>Already have an account? <a href="{{ url_for('login') }}">Log In</a></p>
+  </form>
+  {% if success %}
+  <div class="alert alert-success" role="alert">{{success}}</div>
+  {% endif %}
+  {% if error %}
+  <div class="alert alert-danger" role="alert">{{error}}</div>
+  {% endif %}
+</div>
+
+{% endblock %}

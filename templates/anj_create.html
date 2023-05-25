@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}ANJ: New - GUIDE{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+<li class="breadcrumb-item"><a href="{{ url_for('anj') }}">ANJ</a></li>
+<li class="breadcrumb-item active" aria-current="page">Add</li>
+{% endblock %}
+
+{% block content %}
+<div class="bg-dark-subtle rounded px-3 py-4 mt-4">
+  {% if error %}
+  <div class="alert alert-danger" role="alert">
+    {{error}}
+  </div>
+  {% endif %}
+  <form method="post">
+    <div class="d-flex">
+      <input class="form-control form-control-lg" type="text" name="title" placeholder="Title" required>
+      <select class="form-select ms-3 me-5" name="difficulty" style="width: revert;">
+        <option value="None" selected>Select difficulty</option>
+        <option value="1">Easy</option>
+        <option value="2">Medium</option>
+        <option value="3">Hard</option>
+      </select>
+      <div class="d-flex align-items-end gap-3 ms-auto">
+        <a href="{{ url_for('anj') }}" class="btn btn-danger" role="button">Cancel</a>
+        <input type="submit" class="btn btn-success btn-lg" value="Create">
+      </div>
+    </div>
+    <div class="row my-3 gy-3">
+      <div class="col-12 col-lg-4">
+        <textarea class="form-control" name="summary" cols="30" rows="35" placeholder="Summary"></textarea>
+      </div>
+      <div class="col-12 col-lg-8 d-flex flex-column gap-3">
+        <textarea class="form-control" name="body" cols="30" rows="25" placeholder="..."></textarea>
+        <input class="form-control form-control-lg" type="text" name="st_title" placeholder="Specific task" required>
+        <textarea class="form-control" name="st_body" cols="30" rows="10" placeholder="..."></textarea>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

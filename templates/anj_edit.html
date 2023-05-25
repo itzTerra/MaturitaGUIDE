@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}ANJ: {{item[1]}}/e - GUIDE{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+<li class="breadcrumb-item"><a href="{{ url_for('anj') }}">ANJ</a></li>
+<li class="breadcrumb-item"><a href="{{ url_for('anj_detail', id=item[0]) }}">{{item[1]|truncate(30, true)}}</a></li>
+<li class="breadcrumb-item active" aria-current="page">Edit</li>
+{% endblock %}
+
+
+{% block content %}
+<div class="bg-dark-subtle rounded px-3 py-4 mt-4">
+  {% if error %}
+  <div class="alert alert-danger" role="alert">
+    {{error}}
+  </div>
+  {% endif %}
+  <form method="post">
+    <div class="d-flex">
+      <input class="form-control form-control-lg" type="text" name="title" placeholder="Title" required value="{{item[1]}}">
+      <select class="form-select ms-3 me-5" name="difficulty" style="width: revert;">
+        <option value="None" {% if item[6] == None %} selected {% endif %}>Select difficulty</option>
+        <option value="1" {% if item[6] == 1 %} selected {% endif %}>Easy</option>
+        <option value="2" {% if item[6] == 2 %} selected {% endif %}>Medium</option>
+        <option value="3" {% if item[6] == 3 %} selected {% endif %}>Hard</option>
+      </select>
+      <div class="d-flex align-items-end gap-3 ms-auto">
+        <a href="{{ url_for('anj_detail', id=item[0]) }}" class="btn btn-danger" role="button">Cancel</a>
+        <input type="submit" class="btn btn-success btn-lg" value="Save">
+      </div>
+    </div>
+    <div class="row my-3 gy-3">
+      <div class="col-12 col-lg-4">
+        <textarea class="form-control form-control" name="summary" cols="30" rows="35" placeholder="Summary">{{item[2]}}</textarea>
+      </div>
+      <div class="col-12 col-lg-8 d-flex flex-column gap-3">
+        <textarea class="form-control" name="body" cols="30" rows="25" placeholder="...">{{item[3]}}</textarea>
+        <input class="form-control form-control-lg" type="text" name="st_title" placeholder="Specific task" value="{{item[4]}}" required>
+        <textarea class="form-control" name="st_body" cols="30" rows="10" placeholder="...">{{item[5]}}</textarea>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

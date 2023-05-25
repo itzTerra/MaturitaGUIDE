@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}ANJ: {{item[1]}} - GUIDE{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{url_for('static', filename='css/detailview.css')}}">
+<script type="module" src="https://md-block.verou.me/md-block.js"></script>
+{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+<li class="breadcrumb-item"><a href="{{ url_for('anj') }}">ANJ</a></li>
+<li class="breadcrumb-item active" aria-current="page">{{item[1]|truncate(30, true)}}</li>
+{% endblock %}
+
+{% block content %}
+<div class="card border-dark-subtle mt-4">
+  <div class="card-header d-flex align-items-start">
+    <h4 class="me-4">
+      {{item[1]}}
+      {% if item[6] == 1 %}
+      <span class="badge text-bg-success ms-2">Easy</span>
+      {% elif item[6] == 2 %}
+      <span class="badge text-bg-warning ms-2">Medium</span>
+      {% elif item[6] == 3 %}
+      <span class="badge text-bg-danger ms-2">Hard</span>
+      {% endif %}
+    </h4>
+    <div class="ms-auto d-flex gap-2 gap-lg-4 align-items-center justify-content-end flex-wrap flex-lg-nowrap">
+      {% if session['user'] and (session['user'][1] > 1 or (session['user'][1] > 0 and item[0] > 21)) %}
+      <a href="{{ url_for('anj_edit', id=item[0]) }}" class="btn btn-sm btn-info" role="button">
+        <i class="bi bi-pencil-square"></i>
+      </a>
+      {% endif %}
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" role="switch" id="collapseSwitch" {{collapse}}>
+        <label class="form-check-label" for="collapseSwitch">Collapsed</label>
+      </div>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" role="switch" id="shuffleSwitch" {{shuffle}}>
+        <label class="form-check-label" for="shuffleSwitch">Shuffle</label>
+      </div>
+      <div class="btn-group" role="group">
+        <a href="{{ url_for('anj_next', id=item[0], asc='-1') }}" class="btn btn-outline-info" role="button">&#171;&nbsp;Previous</a>
+        <a href="{{ url_for('anj_next', id=item[0], asc='1') }}" class="btn btn-outline-info" role="button">Next&nbsp;&#187;</a>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row gy-3">
+      <div class="col-12 col-lg-4">
+        <div class="accordion">
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button {% if collapse %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#summaryCollapse" aria-controls="summaryCollapse">
+                Summary
+              </button>
+            </h2>
+            <div id="summaryCollapse" class="accordion-collapse collapse {% if not collapse %}show{% endif %}">
+              <div class="accordion-body">
+                <md-block>{{item[2]}}</md-block>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-8">
+        <div class="accordion">
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button {% if collapse %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#contentCollapse" aria-controls="contentCollapse">
+                Content
+              </button>
+            </h2>
+            <div id="contentCollapse" class="accordion-collapse collapse {% if not collapse %}show{% endif %}">
+              <div class="accordion-body">
+                <md-block>{{item[3]}}</md-block>
+              </div>
+            </div>
+          </div>
+        </div>
+        <h5 class="my-3"><span class="lead">Specific task -</span> {{item[4]}}</h5>
+        <div class="accordion">
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button {% if collapse %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#stCollapse" aria-controls="stCollapse">
+                Specific Task
+              </button>
+            </h2>
+            <div id="stCollapse" class="accordion-collapse collapse {% if not collapse %}show{% endif %}">
+              <div class="accordion-body">
+                <md-block>{{item[5]}}</md-block>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/anj_detail.js') }}"></script>
+{% endblock %}

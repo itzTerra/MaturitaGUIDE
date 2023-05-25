@@ -1,0 +1,47 @@
+[data-bs-theme=dark] {
+    --bs-body-color: #c7cdd3;
+    --bs-secondary-color: rgba(173, 181, 189, 0.8);
+    --bs-border-color: var(--bs-dark-border-subtle);
+}
+
+[data-bs-theme=dark] body{
+    background-color: #121212;
+}
+
+html { 
+    height:100%;
+}
+body { 
+    min-height:100%;
+    display: flex;
+    flex-direction: column;
+}
+
+main:has(.center-content) {
+    padding-bottom: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-xl{
+    --bs-btn-padding-y: 2rem;
+    --bs-btn-font-size: 2rem;
+    --bs-btn-border-radius: 1rem;
+}
+
+.base-alert{
+    position: fixed;
+    top: 90%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 100;
+}
+
+#back-to-top-btn{
+    display: none;
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 200;
+}

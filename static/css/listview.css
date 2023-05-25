@@ -1,0 +1,8 @@
+[data-bs-theme=dark] .card-body{
+    background-color: var(--bs-dark);
+    color: var(--bs-dark-text);
+}
+
+.card{
+    --bs-card-spacer-y: 0.5rem;
+}
